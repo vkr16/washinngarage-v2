@@ -51,4 +51,53 @@ class UsersController extends BaseController
             return $this->respond($response, 200);
         }
     }
+
+    public function getUsers()
+    {
+        $limit = $this->request->getVar('limit');
+        $page = $this->request->getVar('page');
+
+        $db = \Config\Database::connect();
+        $builder = $db->table('users');
+        $builder->where('deleted_at', null);
+        $builder->select(['id', 'fullname', 'email', 'phone', 'username', 'role']);
+
+
+
+
+        if (is_null($limit) && is_null($page)) {
+            $users = $builder->get()->getResult();
+            $response = [
+                'success' => true,
+                'message' => 'Successfully get all users data',
+                'data' => $users
+            ];
+            return $this->respond($response, 200);
+        } else {
+            $totalData = $builder->countAllResults(false);
+            $totalPages = ceil($totalData / $limit);
+            if ($page > $totalPages) {
+                $response = [
+                    'success' => false,
+                    'message' => 'Requested page is not available',
+                ];
+                return $this->respond($response, 400);
+            } else {
+                $offset = ($page - 1) * $limit;
+                $users = $builder->get($limit, $offset)->getResult();
+                $response = [
+                    'success' => true,
+                    'message' => 'Successfully get ' . $limit . ' users data for page ' . $page,
+                    'data' => [
+                        'limit' => $limit,
+                        'totalData' => $totalData,
+                        'page' => $page,
+                        'totalPages' => $totalPages,
+                        'users' => $users
+                    ]
+                ];
+                return $this->respond($response, 200);
+            }
+        }
+    }
 }
