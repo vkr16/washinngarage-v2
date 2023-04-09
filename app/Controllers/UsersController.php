@@ -5,7 +5,6 @@ namespace App\Controllers;
 use App\Controllers\BaseController;
 use CodeIgniter\API\ResponseTrait;
 use App\Models\UsersModel;
-use Config\Services;
 
 class UsersController extends BaseController
 {
@@ -137,6 +136,76 @@ class UsersController extends BaseController
                     'message' => 'Invalid user id format provided',
                 ];
                 return $this->respond($response, 400);
+            }
+        } else {
+            $response = [
+                'success' => false,
+                'message' => 'Required parameter not provided : id'
+            ];
+            return $this->respond($response, 400);
+        }
+    }
+
+    public function updateUser()
+    {
+        $id = $this->request->getRawInputVar('id');
+
+        $fullname = $this->request->getRawInputVar('fullname');
+        $email    = $this->request->getRawInputVar('email');
+        $phone    = $this->request->getRawInputVar('phone');
+        $username = $this->request->getRawInputVar('username');
+
+        if (!is_null($id)) {
+            $validation = service('validation');
+            $validation->check($id, 'numeric');
+            if ($validation->getErrors()) {
+                $response = [
+                    'success' => false,
+                    'message' => 'Invalid user id format provided',
+                ];
+                return $this->respond($response, 400);
+            } else {
+                $usersModel = new UsersModel();
+                if ($oldUserData = $usersModel->find($id)) {
+                    $oldUserData['fullname'] != $fullname ? $newUserData['fullname'] = $fullname : '';
+                    $oldUserData['email'] != $email ? $newUserData['email'] = $email : '';
+                    $oldUserData['phone'] != $phone ? $newUserData['phone'] = $phone : '';
+                    $oldUserData['username'] != $username ? $newUserData['username'] = $username : '';
+
+                    if (isset($newUserData)) {
+                        if ($usersModel->where('id', $id)->set($newUserData)->update()) {
+                            $response = [
+                                'success' => true,
+                                'message' => 'Successfully updated',
+                                'data' => [
+                                    'userId' => $id,
+                                    'userData' => $newUserData
+                                ]
+                            ];
+                            return $this->respond($response, 200);
+                        } else {
+                            $errors = $usersModel->errors();
+                            $response = [
+                                'success' => false,
+                                'message' => 'Failed to update user data',
+                                'error' => $errors
+                            ];
+                            return $this->respond($response, 400);
+                        }
+                    } else {
+                        $response = [
+                            'success' => true,
+                            'message' => 'Nothing changed'
+                        ];
+                        return $this->respond($response, 200);
+                    }
+                } else {
+                    $response = [
+                        'success' => false,
+                        'message' => 'There is no user with id : ' . $id
+                    ];
+                    return $this->respond($response, 404);
+                }
             }
         } else {
             $response = [

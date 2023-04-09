@@ -80,7 +80,7 @@ class AuthFilter implements FilterInterface
         if (!$usersModel->where('email', $decodedToken->email)->find()) {
             $data = [
                 'success' => false,
-                'message' => 'User not found'
+                'message' => 'Invalid token, user not found'
             ];
             return $response->setStatusCode(404)->setJSON($data);
         } else {

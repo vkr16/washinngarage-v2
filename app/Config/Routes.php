@@ -49,6 +49,9 @@ $routes->get('/api/v1/users/get/all', 'UsersController::getUsers');
 /* POST -> API / V1 / User / Get */
 $routes->get('/api/v1/user/get', 'UsersController::getUserById');
 
+/* POST -> API / V1 / User / Update */
+$routes->put('/api/v1/user/update', 'UsersController::updateUser');
+
 /*
  * --------------------------------------------------------------------
  * Additional Routing
