@@ -52,6 +52,9 @@ $routes->get('/api/v1/user/get', 'UsersController::getUserById');
 /* POST -> API / V1 / User / Update */
 $routes->put('/api/v1/user/update', 'UsersController::updateUser');
 
+/* POST -> API / V1 / User / Delete */
+$routes->delete('/api/v1/user/delete', 'UsersController::deleteUser');
+
 /*
  * --------------------------------------------------------------------
  * Additional Routing

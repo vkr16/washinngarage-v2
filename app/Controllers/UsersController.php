@@ -215,4 +215,61 @@ class UsersController extends BaseController
             return $this->respond($response, 400);
         }
     }
+
+    public function deleteUser()
+    {
+        $id = $this->request->getRawInputVar('id');
+
+        if (!is_null($id) && !empty($id)) {
+            $usersModel = new UsersModel();
+            if ($user = $usersModel->find($id)) {
+                helper('jwt');
+                $headerAuthentication = $this->request->getServer("HTTP_AUTHORIZATION");
+                $decodedToken = decodeJWT(getJWT($headerAuthentication));
+                if ($user['email'] == $decodedToken->email) {
+                    $response = [
+                        'success' => false,
+                        'message' => 'Not allowed, can not delete currently active user'
+                    ];
+                    return $this->respond($response, 405);
+                } else {
+                    if ($usersModel->delete($id)) {
+                        $response = [
+                            'success' => true,
+                            'message' => 'User deleted successfully',
+                            'data' => [
+                                'deletedUser' => [
+                                    'id' => $id,
+                                    'fullname' => $user['fullname'],
+                                    'email' => $user['email'],
+                                    'phone' => $user['phone'],
+                                    'username' => $user['username'],
+                                ]
+                            ]
+                        ];
+                        return $this->respond($response, 200);
+                    } else {
+                        $response = [
+                            'success' => false,
+                            'message' => 'Failed to delete user',
+                            'errors' => $usersModel->errors()
+                        ];
+                        return $this->respond($response, 400);
+                    }
+                }
+            } else {
+                $response = [
+                    'success' => false,
+                    'message' => 'Failed to delete, user not found'
+                ];
+                return $this->respond($response, 404);
+            }
+        } else {
+            $response = [
+                'success' => false,
+                'message' => 'Required parameter not provided : id'
+            ];
+            return $this->respond($response, 400);
+        }
+    }
 }
