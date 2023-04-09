@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Controllers\BaseController;
 use CodeIgniter\API\ResponseTrait;
 use App\Models\UsersModel;
+use Config\Services;
 
 class UsersController extends BaseController
 {
@@ -112,24 +113,34 @@ class UsersController extends BaseController
             $builder->where('id', $id);
             $builder->select(['id', 'fullname', 'email', 'phone', 'username', 'role']);
 
-            if ($builder->countAllResults(false) > 0) {
-                $user = $builder->get()->getResult();
-                $response = [
-                    'success' => true,
-                    'message' => 'Successfully get user data with id ' . $id,
-                    'data' => $user
-                ];
-                return $this->respond($response, 200);
+            $validation = service('validation');
+            $validation->check($id, 'numeric');
+            if (!$validation->getErrors()) {
+                if ($builder->countAllResults(false) > 0) {
+                    $user = $builder->get()->getResult();
+                    $response = [
+                        'success' => true,
+                        'message' => 'Successfully get user data with id ' . $id,
+                        'data' => $user
+                    ];
+                    return $this->respond($response, 200);
+                } else {
+                    $response = [
+                        'success' => false,
+                        'message' => 'No user found with id ' . $id,
+                    ];
+                    return $this->respond($response, 404);
+                }
             } else {
                 $response = [
-                    'success' => true,
-                    'message' => 'No user found with id ' . $id,
+                    'success' => false,
+                    'message' => 'Invalid user id format provided',
                 ];
-                return $this->respond($response, 404);
+                return $this->respond($response, 400);
             }
         } else {
             $response = [
-                'success' => true,
+                'success' => false,
                 'message' => 'Required parameter not provided : id'
             ];
             return $this->respond($response, 400);
