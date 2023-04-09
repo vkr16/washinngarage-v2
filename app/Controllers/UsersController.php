@@ -100,4 +100,39 @@ class UsersController extends BaseController
             }
         }
     }
+
+    public function getUserById()
+    {
+        $id = $this->request->getVar('id');
+
+        if (!is_null($id) && !empty($id)) {
+            $db = \Config\Database::connect();
+            $builder = $db->table('users');
+            $builder->where('deleted_at', null);
+            $builder->where('id', $id);
+            $builder->select(['id', 'fullname', 'email', 'phone', 'username', 'role']);
+
+            if ($builder->countAllResults(false) > 0) {
+                $user = $builder->get()->getResult();
+                $response = [
+                    'success' => true,
+                    'message' => 'Successfully get user data with id ' . $id,
+                    'data' => $user
+                ];
+                return $this->respond($response, 200);
+            } else {
+                $response = [
+                    'success' => true,
+                    'message' => 'No user found with id ' . $id,
+                ];
+                return $this->respond($response, 404);
+            }
+        } else {
+            $response = [
+                'success' => true,
+                'message' => 'Required parameter not provided : id'
+            ];
+            return $this->respond($response, 400);
+        }
+    }
 }

@@ -46,6 +46,9 @@ $routes->post('/api/v1/users/add', 'UsersController::addUser');
 /* POST -> API / V1 / Users / Get / All */
 $routes->get('/api/v1/users/get/all', 'UsersController::getUsers');
 
+/* POST -> API / V1 / User / Get */
+$routes->get('/api/v1/user/get', 'UsersController::getUserById');
+
 /*
  * --------------------------------------------------------------------
  * Additional Routing
