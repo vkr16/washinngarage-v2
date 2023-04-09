@@ -37,8 +37,8 @@ $routes->get('/', 'Home::index');
 * --------------------------------------------------------------------
 */
 
-/* POST -> API / V1 / Users / Add */
-$routes->post('/api/v1/users/add', 'UsersController::addUser');
+/* POST -> API / V1 / User / Add */
+$routes->post('/api/v1/user/add', 'UsersController::addUser');
 
 /*
  * --------------------------------------------------------------------
