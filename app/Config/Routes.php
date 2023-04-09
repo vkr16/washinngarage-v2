@@ -43,16 +43,16 @@ $routes->post('/api/v1/auth', 'AuthController::auth');
 /* POST -> API / V1 / User / Add */
 $routes->post('/api/v1/user/add', 'UsersController::addUser');
 
-/* POST -> API / V1 / Users / Get / All */
+/* GET -> API / V1 / Users / Get / All */
 $routes->get('/api/v1/users/get/all', 'UsersController::getUsers');
 
-/* POST -> API / V1 / User / Get */
+/* GET -> API / V1 / User / Get */
 $routes->get('/api/v1/user/get', 'UsersController::getUserById');
 
-/* POST -> API / V1 / User / Update */
+/* PUT -> API / V1 / User / Update */
 $routes->put('/api/v1/user/update', 'UsersController::updateUser');
 
-/* POST -> API / V1 / User / Delete */
+/* DELETE -> API / V1 / User / Delete */
 $routes->delete('/api/v1/user/delete', 'UsersController::deleteUser');
 
 /*
