@@ -65,7 +65,8 @@ class Filters extends BaseConfig
     public array $filters = [
         'authfilter' => [
             'before' => [
-                'api/v1/users/*'
+                'api/v1/users/*',
+                'api/v1/user/*',
             ],
         ]
     ];
