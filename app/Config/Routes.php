@@ -55,6 +55,9 @@ $routes->put('/api/v1/user/update', 'UsersController::updateUser');
 /* DELETE -> API / V1 / User / Delete */
 $routes->delete('/api/v1/user/delete', 'UsersController::deleteUser');
 
+/* PUT -> API / V1 / User / Promote */
+$routes->PUT('/api/v1/user/promote', 'UsersController::promoteUser');
+
 /*
  * --------------------------------------------------------------------
  * Additional Routing
