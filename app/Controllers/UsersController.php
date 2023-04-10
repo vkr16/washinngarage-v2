@@ -272,4 +272,71 @@ class UsersController extends BaseController
             return $this->respond($response, 400);
         }
     }
+
+    public function promoteUser()
+    {
+        $id = $this->request->getRawInputVar('id');
+
+        if (!is_null($id)) {
+            $validation = service('validation');
+            $validation->check($id, 'numeric');
+            if ($validation->getErrors()) {
+                $response = [
+                    'success' => false,
+                    'message' => 'Invalid user id format provided',
+                ];
+                return $this->respond($response, 400);
+            } else {
+                $usersModel = new UsersModel();
+                if ($user = $usersModel->find($id)) {
+                    helper('jwt');
+                    $headerAuthentication = $this->request->getServer("HTTP_AUTHORIZATION");
+                    $decodedToken = decodeJWT(getJWT($headerAuthentication));
+
+                    if ($decodedToken->email == $user['email']) {
+                        $response = [
+                            'success' => false,
+                            'message' => 'You are already an administrator'
+                        ];
+                        return $this->respond($response, 400);
+                    } else {
+                        if ($user['role'] == 'operator') {
+                            if ($usersModel->where('id', $id)->set(['role' => 'admin'])->update()) {
+                                $response = [
+                                    'success' => true,
+                                    'message' => $user['fullname'] . ' has been promoted as an administrator',
+                                ];
+                                return $this->respond($response, 200);
+                            } else {
+                                $response = [
+                                    'success' => false,
+                                    'message' => 'Failed to promote user as administrator',
+                                    'error' => $usersModel->errors()
+                                ];
+                                return $this->respond($response, 400);
+                            }
+                        } else {
+                            $response = [
+                                'success' => false,
+                                'message' => $user['fullname'] . ' is already an administrator'
+                            ];
+                            return $this->respond($response, 400);
+                        }
+                    }
+                } else {
+                    $response = [
+                        'success' => false,
+                        'message' => 'Failed to promote, user not found'
+                    ];
+                    return $this->respond($response, 404);
+                }
+            }
+        } else {
+            $response = [
+                'success' => false,
+                'message' => 'Required parameter not provided : id'
+            ];
+            return $this->respond($response, 400);
+        }
+    }
 }
