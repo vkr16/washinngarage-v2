@@ -339,4 +339,71 @@ class UsersController extends BaseController
             return $this->respond($response, 400);
         }
     }
+
+    public function demoteUser()
+    {
+        $id = $this->request->getRawInputVar('id');
+
+        if (!is_null($id)) {
+            $validation = service('validation');
+            $validation->check($id, 'numeric');
+            if ($validation->getErrors()) {
+                $response = [
+                    'success' => false,
+                    'message' => 'Invalid user id format provided',
+                ];
+                return $this->respond($response, 400);
+            } else {
+                $usersModel = new UsersModel();
+                if ($user = $usersModel->find($id)) {
+                    helper('jwt');
+                    $headerAuthentication = $this->request->getServer("HTTP_AUTHORIZATION");
+                    $decodedToken = decodeJWT(getJWT($headerAuthentication));
+
+                    if ($decodedToken->email == $user['email']) {
+                        $response = [
+                            'success' => false,
+                            'message' => 'You can\'t demote yourself'
+                        ];
+                        return $this->respond($response, 400);
+                    } else {
+                        if ($user['role'] == 'admin') {
+                            if ($usersModel->where('id', $id)->set(['role' => 'staff'])->update()) {
+                                $response = [
+                                    'success' => true,
+                                    'message' => $user['fullname'] . ' has been demoted to a staff',
+                                ];
+                                return $this->respond($response, 200);
+                            } else {
+                                $response = [
+                                    'success' => false,
+                                    'message' => 'Failed to demote user to a staff',
+                                    'error' => $usersModel->errors()
+                                ];
+                                return $this->respond($response, 400);
+                            }
+                        } else {
+                            $response = [
+                                'success' => false,
+                                'message' => $user['fullname'] . ' is already a staff'
+                            ];
+                            return $this->respond($response, 400);
+                        }
+                    }
+                } else {
+                    $response = [
+                        'success' => false,
+                        'message' => 'Failed to demote, user not found'
+                    ];
+                    return $this->respond($response, 404);
+                }
+            }
+        } else {
+            $response = [
+                'success' => false,
+                'message' => 'Required parameter not provided : id'
+            ];
+            return $this->respond($response, 400);
+        }
+    }
 }
