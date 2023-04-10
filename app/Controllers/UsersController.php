@@ -300,7 +300,7 @@ class UsersController extends BaseController
                         ];
                         return $this->respond($response, 400);
                     } else {
-                        if ($user['role'] == 'operator') {
+                        if ($user['role'] == 'staff') {
                             if ($usersModel->where('id', $id)->set(['role' => 'admin'])->update()) {
                                 $response = [
                                     'success' => true,
