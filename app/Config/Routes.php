@@ -56,10 +56,15 @@ $routes->put('/api/v1/user/update', 'UsersController::updateUser');
 $routes->delete('/api/v1/user/delete', 'UsersController::deleteUser');
 
 /* PUT -> API / V1 / User / Promote */
-$routes->PUT('/api/v1/user/promote', 'UsersController::promoteUser');
+$routes->put('/api/v1/user/promote', 'UsersController::promoteUser');
 
 /* PUT -> API / V1 / User / Demote */
-$routes->PUT('/api/v1/user/demote', 'UsersController::demoteUser');
+$routes->put('/api/v1/user/demote', 'UsersController::demoteUser');
+
+/* PUT -> API / V1 / Service / Add */
+$routes->post('/api/v1/service/add', 'ServicesController::addService');
+
+
 
 /*
  * --------------------------------------------------------------------
