@@ -26,9 +26,9 @@ class ServicesModel extends Model
     // Validation
     protected $validationRules = [
         'thumbnail' => [
-            'label' => 'Service Thumbnail',
+            'label' => 'Service thumbnail',
             'rules' => [
-                'uploaded[thumbnail]', 'is_image[thumbnail]', 'mime_in[thumbnail,image/jpg,image/jpeg,image/gif,image/png,image/webp]', 'max_size[thumbnail,500]', 'max_dims[thumbnail,500,500]'
+                'string'
             ]
         ],
         'category' => [

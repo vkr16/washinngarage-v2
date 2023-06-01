@@ -13,6 +13,7 @@ class ServicesController extends BaseController
 
     public function addService()
     {
+        $image = \Config\Services::image();
 
         $newServiceData['category'] = $this->request->getVar('category');
         $newServiceData['name'] = $this->request->getVar('name');
@@ -21,80 +22,57 @@ class ServicesController extends BaseController
         $newServiceData['point'] = $this->request->getVar('point');
         $newServiceData['status'] = $this->request->getVar('status');
 
-        // $validationRules = [
-        //     'thumbnail' => [
-        //         'label' => 'Service Thumbnail',
-        //         'rules' => [
-        //             'uploaded[thumbnail]', 'is_image[thumbnail]', 'mime_in[thumbnail,image/jpg,image/jpeg,image/gif,image/png,image/webp]', 'max_size[thumbnail,500]', 'max_dims[thumbnail,500,500]'
-        //         ]
-        //     ],
-        //     'category' => [
-        //         'label' => 'Service category',
-        //         'rules' => [
-        //             'numeric', 'required'
-        //         ]
-        //     ],
-        //     'name' => [
-        //         'label' => 'Service name',
-        //         'rules' => [
-        //             'string', 'required'
-        //         ]
-        //     ],
-        //     'price' => [
-        //         'label' => 'Service price',
-        //         'rules' => [
-        //             'numeric', 'required'
-        //         ]
-        //     ],
-        //     'description' => [
-        //         'label' => 'Service description',
-        //         'rules' => [
-        //             'string'
-        //         ]
-        //     ],
-        //     'point' => [
-        //         'label' => 'Service point',
-        //         'rules' => [
-        //             'numeric', 'required'
-        //         ]
-        //     ],
-        //     'status' => [
-        //         'label' => 'Service status',
-        //         'rules' => [
-        //             'numeric', 'required'
-        //         ]
-        //     ]
-        // ];
-        // if (!$this->validate($validationRules)) {
-        //     $validationError = $this->validator->getErrors();
-
-        //     $response = [
-        //         'success' => false,
-        //         'message' => 'Request parameter validation failed',
-        //         'errors' => $validationError
-        //     ];
-        //     return $this->respond($response, 400);
-        // }
         $servicesModel = new ServicesModel();
-        if (!$servicesModel->insert($newServiceData)) {
-            $errors = $servicesModel->errors();
+
+        $validationRule = [
+            'thumbnail' => [
+                'label' => 'Service thumbnail',
+                'rules' => [
+                    'uploaded[thumbnail]',
+                    'is_image[thumbnail]',
+                    'mime_in[thumbnail,image/jpg,image/jpeg,image/gif,image/png,image/webp]',
+                    'max_size[thumbnail,500]',
+                    'max_dims[thumbnail,2000,2000]'
+                ]
+            ]
+        ];
+
+        if (!$this->validate($validationRule)) {
+            $errors = $this->validator->getErrors();
             $response = [
                 'success' => false,
-                'message' => 'Parameter did not pass the required validation',
+                'message' => 'Thumbnail must be in (.jpg, .jpeg, .gif, .png, .webp) format and 500kb or less in size and maximum 2000 x 2000 pixels in square ratio',
                 'errors' => $errors
             ];
             return $this->respond($response, 400);
         }
-
         $img = $this->request->getFile('thumbnail');
         $randomName = $img->getRandomName();
 
         if ($img->move(WRITEPATH . 'thumbnails', $randomName)) {
-            $response = [
-                'success' => true,
-                'message' => 'File uploaded successfully'
-            ];
-            return $this->respond($response, 200);
+
+            $image->withFile(WRITEPATH . 'thumbnails/' . $randomName)
+                ->fit(1500, 1500, 'center')
+                ->save(WRITEPATH . 'thumbnails/' . 'processed_' . $randomName);
+            unlink(WRITEPATH . 'thumbnails/' . $randomName);
+            $newServiceData['thumbnail'] = 'processed_' . $randomName;
+            if (!$servicesModel->insert($newServiceData)) {
+                unlink(WRITEPATH . 'thumbnails/' . $randomName);
+                $errors = $servicesModel->errors();
+                $response = [
+                    'success' => false,
+                    'message' => 'Parameter did not pass the required validation',
+                    'errors' => $errors
+                ];
+                return $this->respond($response, 400);
+            } else {
+                $response = [
+                    'success' => true,
+                    'message' => 'New service has been added successfully',
+                    'data' => $newServiceData
+                ];
+                return $this->respond($response, 200);
+            }
         } else {
             $response = [
                 'success' => false,
