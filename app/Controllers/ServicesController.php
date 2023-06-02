@@ -136,7 +136,7 @@ class ServicesController extends BaseController
         $builder->select(['id', 'category', 'name', 'price', 'thumbnail', 'point', 'status']);
         $services = $builder->get()->getResult();
 
-        if ($builder->countAllResults(false) > 0) {
+        if (count($services) > 0) {
             $response = [
                 'success' => true,
                 'message' => 'Successfully get all active services',
@@ -187,6 +187,80 @@ class ServicesController extends BaseController
                     'message' => 'Invalid service id format provided',
                 ];
                 return $this->respond($response, 400);
+            }
+        } else {
+            $response = [
+                'success' => false,
+                'message' => 'Required parameter not provided : id'
+            ];
+            return $this->respond($response, 400);
+        }
+    }
+
+    public function activateService()
+    {
+        $id = $this->request->getVar('id');
+
+        if (!is_null($id) && !empty($id)) {
+            $serviceModel = new ServicesModel();
+            if ($serviceModel->find($id)) {
+                if ($serviceModel->update($id, ['status' => '1'])) {
+                    $response = [
+                        'success' => true,
+                        'message' => 'Successfully activated service with id ' . $id,
+                    ];
+                    return $this->respond($response, 200);
+                } else {
+                    $response = [
+                        'success' => false,
+                        'message' => 'Failed to activate service with id ' . $id,
+                        'errors' => $serviceModel->errors()
+                    ];
+                    return $this->respond($response, 500);
+                }
+            } else {
+                $response = [
+                    'success' => false,
+                    'message' => 'No service found with id ' . $id,
+                ];
+                return $this->respond($response, 404);
+            }
+        } else {
+            $response = [
+                'success' => false,
+                'message' => 'Required parameter not provided : id'
+            ];
+            return $this->respond($response, 400);
+        }
+    }
+
+    public function deactivateService()
+    {
+        $id = $this->request->getVar('id');
+
+        if (!is_null($id) && !empty($id)) {
+            $serviceModel = new ServicesModel();
+            if ($serviceModel->find($id)) {
+                if ($serviceModel->update($id, ['status' => '0'])) {
+                    $response = [
+                        'success' => true,
+                        'message' => 'Successfully deactivated service with id ' . $id,
+                    ];
+                    return $this->respond($response, 200);
+                } else {
+                    $response = [
+                        'success' => false,
+                        'message' => 'Failed to deactivate service with id ' . $id,
+                        'errors' => $serviceModel->errors()
+                    ];
+                    return $this->respond($response, 500);
+                }
+            } else {
+                $response = [
+                    'success' => false,
+                    'message' => 'No service found with id ' . $id,
+                ];
+                return $this->respond($response, 404);
             }
         } else {
             $response = [

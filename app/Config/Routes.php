@@ -73,6 +73,12 @@ $routes->get('/api/v1/services/get/active', 'ServicesController::getActiveServic
 /* GET -> API / V1 / Service / Get  */
 $routes->get('/api/v1/service/get', 'ServicesController::getServiceById');
 
+/* POST -> API / V1 / Service / Activate  */
+$routes->post('/api/v1/service/activate', 'ServicesController::activateService');
+
+/* POST -> API / V1 / Service / Deactivate  */
+$routes->post('/api/v1/service/deactivate', 'ServicesController::deactivateService');
+
 
 
 
