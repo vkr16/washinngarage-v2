@@ -61,8 +61,18 @@ $routes->put('/api/v1/user/promote', 'UsersController::promoteUser');
 /* PUT -> API / V1 / User / Demote */
 $routes->put('/api/v1/user/demote', 'UsersController::demoteUser');
 
-/* PUT -> API / V1 / Service / Add */
+/* POST -> API / V1 / Service / Add */
 $routes->post('/api/v1/service/add', 'ServicesController::addService');
+
+/* GET -> API / V1 / Services / Get / All */
+$routes->get('/api/v1/services/get/all', 'ServicesController::getServices');
+
+/* GET -> API / V1 / Services / Get / Active */
+$routes->get('/api/v1/services/get/active', 'ServicesController::getActiveServices');
+
+/* GET -> API / V1 / Service / Get  */
+$routes->get('/api/v1/service/get', 'ServicesController::getServiceById');
+
 
 
 

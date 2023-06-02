@@ -102,4 +102,98 @@ class ServicesController extends BaseController
             return false;
         }
     }
+
+    public function getServices()
+    {
+        $db = \Config\Database::connect();
+        $builder = $db->table('services');
+        $builder->where('deleted_at', null);
+        $builder->select(['id', 'category', 'name', 'price', 'thumbnail', 'point', 'status']);
+        $services = $builder->get()->getResult();
+
+        if ($builder->countAllResults(false) > 0) {
+            $response = [
+                'success' => true,
+                'message' => 'Successfully get all services',
+                'data' => $services
+            ];
+            return $this->respond($response, 200);
+        } else {
+            $response = [
+                'success' => false,
+                'message' => 'No services were found',
+            ];
+            return $this->respond($response, 404);
+        }
+    }
+
+    public function getActiveServices()
+    {
+        $db = \Config\Database::connect();
+        $builder = $db->table('services');
+        $builder->where('deleted_at', null);
+        $builder->where('status', '1');
+        $builder->select(['id', 'category', 'name', 'price', 'thumbnail', 'point', 'status']);
+        $services = $builder->get()->getResult();
+
+        if ($builder->countAllResults(false) > 0) {
+            $response = [
+                'success' => true,
+                'message' => 'Successfully get all active services',
+                'data' => $services
+            ];
+            return $this->respond($response, 200);
+        } else {
+            $response = [
+                'success' => false,
+                'message' => 'No active services were found',
+            ];
+            return $this->respond($response, 404);
+        }
+    }
+
+    public function getServiceById()
+    {
+        $id = $this->request->getVar('id');
+
+        if (!is_null($id) && !empty($id)) {
+            $db = \Config\Database::connect();
+            $builder = $db->table('services');
+            $builder->where('deleted_at', null);
+            $builder->where('id', $id);
+            $builder->select(['id', 'category', 'name', 'price', 'thumbnail', 'description', 'point', 'status']);
+
+            $validation = service('validation');
+            $validation->check($id, 'numeric');
+            if (!$validation->getErrors()) {
+                if ($builder->countAllResults(false) > 0) {
+                    $service = $builder->get()->getResult();
+                    $response = [
+                        'success' => true,
+                        'message' => 'Successfully get service detail with id ' . $id,
+                        'data' => $service
+                    ];
+                    return $this->respond($response, 200);
+                } else {
+                    $response = [
+                        'success' => false,
+                        'message' => 'No service found with id ' . $id,
+                    ];
+                    return $this->respond($response, 404);
+                }
+            } else {
+                $response = [
+                    'success' => false,
+                    'message' => 'Invalid service id format provided',
+                ];
+                return $this->respond($response, 400);
+            }
+        } else {
+            $response = [
+                'success' => false,
+                'message' => 'Required parameter not provided : id'
+            ];
+            return $this->respond($response, 400);
+        }
+    }
 }
